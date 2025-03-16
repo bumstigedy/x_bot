@@ -2,6 +2,8 @@ import requests
 import json
 import os
 from datetime import datetime, timezone, timedelta
+import tweepy
+from urllib.parse import parse_qs, urlparse
 #
 def write_url():
 
@@ -18,8 +20,13 @@ def write_url():
     return f"https://www.alphavantage.co/query?function=NEWS_SENTIMENT&tickers=CRYPTO:BTC&time_from={time_from}&limit=10&apikey=key"
 url=write_url()
 
-#Alpha Vantage API Key
+#retrieve secrets
 key=os.getenv("ALPHA_VANTAGE_API_KEY")
+API_KEY = os.getenv("X_CONSUMER_API_KEY")
+API_SECRET = os.getenv("X_CONSUMER_API_SECRET")
+ACCESS_TOKEN=os.getenv("X_ACCESS_TOKEN")
+ACCESS_TOKEN_SECRET=os.getenv("X_ACCESS_TOKEN_SECRET")
+
 # current local models downloaded
 models = {
 "deepseek":"deepseek-r1:1.5b",
@@ -107,8 +114,30 @@ def analyze_text_with_ollama(title, summary, ticker, sentiment, model=models['de
 top_post=get_top_post(url)
 #
 llm_result=analyze_text_with_ollama(top_post["title"], top_post["summary"], top_post["ticker"],top_post['overall_sentiment_label'], model=models['deepseek'])
-x_post=extract_outside_think(llm_result)
+x_post = extract_outside_think(llm_result).strip('\'"')
 #
 print("----------------->X Post <-------------")
 print(x_post)
-                                
+
+# Authenticate with the X API (v2)
+client = tweepy.Client(
+    consumer_key=API_KEY,
+    consumer_secret=API_SECRET,
+    access_token=ACCESS_TOKEN,
+    access_token_secret=ACCESS_TOKEN_SECRET
+)
+
+# Test authentication
+try:
+    user = client.get_me().data
+    print("Authenticated as:", user["username"])
+except tweepy.TweepyException as e:
+    print("Authentication error:", str(e))
+    exit()
+
+# Post a tweet
+try:
+    response = client.create_tweet(text=x_post)
+    print("Tweet posted successfully! Tweet ID:", response.data["id"])
+except tweepy.TweepyException as e:
+    print("Error posting tweet:", str(e))     
