@@ -15,7 +15,7 @@ def write_url():
     print(f"Current UTC time: {current_time}")
 
     # Subtract 1 hour
-    time_one_hour_ago = current_time - timedelta(hours=1)
+    time_one_hour_ago = current_time - timedelta(hours=4)
     print(f"Looking for articles from the past hour (since {time_one_hour_ago})")
 
     # Format the time as required by Alpha Vantage API (YYYYMMDDTHHMM)
@@ -121,7 +121,8 @@ def analyze_text_with_ollama(title, summary, ticker, sentiment, model=models['de
     payload = {
         "model": model,
         "prompt": f"""Write a tweet based on the following information and include hash tags:
-        <title> {title}, <summary> {summary}, ticker: {ticker}.  Use a {sentiment} tone.  """,
+        <title> {title}, <summary> {summary}, ticker: {ticker}.  Use a {sentiment} tone. Respond with only the tweet text, no extra commentary, 
+        within 280 characters. """,
         "stream": False
     }
     print("Sending request to Ollama...")
