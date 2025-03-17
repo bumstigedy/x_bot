@@ -121,7 +121,7 @@ def analyze_text_with_ollama(title, summary, ticker, sentiment, model=models['de
     payload = {
         "model": model,
         "prompt": f"""Write a tweet based on the following information and include hash tags:
-        <title> {title}, <summary> {summary}, ticker: {ticker}.  Use a {sentiment} tone. Respond with only the tweet text, no extra commentary, 
+        <title> {title}, <summary> {summary}, ticker: {ticker}. {sentiment} Respond with only the tweet text, no extra commentary, 
         within 280 characters. """,
         "stream": False
     }
